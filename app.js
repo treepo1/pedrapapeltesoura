@@ -25,7 +25,7 @@ const translations = {
         portuguese: "Portuguese",
         chooseLanguage: "Choose a language",
         chooseYourWeapon: "Choose your weapon",
-        timeToChoose: "You have 10 seconds to choose",
+        timeToChoose: "You have {time} seconds to choose",
         backToMenu: "Back to menu"
     },
     br: {
@@ -33,11 +33,11 @@ const translations = {
         play: "Jogar",
         title: "Pedra, Papel, Tesoura",
         you: "Você",
+        lose: "Perdeu!",
         rock: "Pedra",
         paper: "Papel",
         scissors: "Tesoura",
         win: "ganhou",
-        lose: "perdeu",
         draw: "Empate!",
         playAgain: "Jogar novamente",
         score: "Sua pontuação",
@@ -46,7 +46,7 @@ const translations = {
         portuguese: "Português",
         chooseLanguage: "Escolha um idioma",
         chooseYourWeapon: "Escolha sua arma",
-        timeToChoose: "Você tem 10 segundos para escolher",
+        timeToChoose: "Você tem {time} segundos para escolher",
         backToMenu: "Voltar ao menu"
     }
 }
@@ -218,7 +218,25 @@ class Game {
     async play() {
 
         for (const player of this.players) {
-            await player.play();
+            try {
+                await player.play();
+            } catch (error) {
+                Swal.fire({
+                    title: translations[this.language].lose,
+                    html: 'Foi de nelson!',
+                    width: 800,
+                    showCancelButton: true,
+                    cancelButtonText:translations[this.language].backToMenu,
+                    padding: '3em',
+                    confirmButtonText: translations[this.language].playAgain,
+                }).then((result) => {
+                    if(result.isConfirmed)
+                    this.play();
+                    else {
+                        this.showMenu();
+                    }
+                })
+            }
         }
         const winner = this.getWinner();
         const looser = this.players.find(player => player !== winner);
@@ -314,7 +332,6 @@ class Player {
 
             Swal.fire({
                 title: translations[localStorage.getItem('language')]['chooseYourWeapon'],
-                footer: translations[localStorage.getItem('language')]['timeToChoose'],
                 html: choiceMenu(),
                 width:'100%',
                 position: 'center',
@@ -327,6 +344,7 @@ class Player {
                 allowEscapeKey: false,
                 allowEnterKey: false,
                 didOpen: () => {
+
 
                    const choices =  document.getElementById("choiceMenu").children
 
@@ -350,6 +368,26 @@ class Player {
                     }.bind(this));
                    }
 
+
+                        const timer = document.getElementById('timeLeft');
+                        const timeLeft = 10;
+                        let time = timeLeft;
+                        const interval = setInterval(() => {
+                            timer.innerHTML = `${time}`;
+                            time--;
+                            if(time < 0) {
+                                clearInterval(interval);
+                                reject('Time is up');
+                            }
+                        }, 900);
+
+
+
+                  
+
+                },
+                didClose: () => {
+                    reject('Time is up');
                 }
         
         });
