@@ -453,9 +453,8 @@ window.onload = async function () {
     btn.click();
     const language = localStorage.getItem('language');
     if(!language) {
-        localStorage.setItem('language', 'en');
+        localStorage.setItem('language', 'eng');
     }
-    document.title = translations[localStorage.getItem('language')].title;
     const game = new Game();
     game.start();
 }
