@@ -8,6 +8,7 @@ import languageMenu from "./menus/language.js";
 
 const translations = { 
     eng: {
+        computer: "Computer",
         play: "Play",
         title: "Rock Paper Scissors",
         rock: "Rock",
@@ -15,6 +16,7 @@ const translations = {
         scissors: "Scissors",
         win: "won!",
         lose: "lost!",
+        you: "You",
         draw: "Draw!",
         playAgain: "Play again",
         score: "Your score",
@@ -23,10 +25,13 @@ const translations = {
         portuguese: "Portuguese",
         chooseLanguage: "Choose a language",
         chooseYourWeapon: "Choose your weapon",
+        timeToChoose: "You have 10 seconds to choose"
     },
     br: {
+        computer: "Computador",
         play: "Jogar",
         title: "Pedra, Papel, Tesoura",
+        you: "Você",
         rock: "Pedra",
         paper: "Papel",
         scissors: "Tesoura",
@@ -40,6 +45,7 @@ const translations = {
         portuguese: "Português",
         chooseLanguage: "Escolha um idioma",
         chooseYourWeapon: "Escolha sua arma",
+        timeToChoose: "Você tem 10 segundos para escolher"
     }
 }
 
@@ -94,14 +100,13 @@ class Game {
 
     async start() {
         if(this.players.length < 2) {
-            const namePlayer1 = window.prompt("Please enter a name for player 1");
-            const namePlayer2 = "Computer";
+            const namePlayer1 = translations[this.language].you;
+            const namePlayer2 =  translations[this.language].computer;
             this.addPlayer(namePlayer1);
             this.addPlayer(namePlayer2, true);
         }
         window.localStorage.setItem("players", JSON.stringify(this.players));
-        await this.showMenu();
-        this.play();
+        await this.showMenu()
 
     }
 
@@ -116,6 +121,8 @@ class Game {
                 showCancelButton: false,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
+                grow: 'fullscreen',
+                position: 'center',
                 allowEnterKey: false,
                 background:'white',
                 width:'100%',
@@ -141,7 +148,8 @@ class Game {
                     for (const btn of btns) {
                         btn.addEventListener('click', (e) => {
                             this.language = e.target.id;
-                            resolve()
+                            this.play();
+                            resolve();
                         })
                     }
 
@@ -188,6 +196,9 @@ class Game {
             }).then((result) => {
                 if(result.isConfirmed)
                 this.play();
+                else {
+                    this.showMenu();
+                }
             })
         } else {
             Swal.fire({
@@ -199,6 +210,9 @@ class Game {
             }).then((result) => {
                 if(result.isConfirmed)
                 this.play();
+                else {
+                    this.showMenu();
+                }
             })
         }
         window.localStorage.setItem("players", JSON.stringify(this.players));
@@ -259,10 +273,11 @@ class Player {
 
             Swal.fire({
                 title: translations[localStorage.getItem('language')]['chooseYourWeapon'],
-                header: 'You have 10 seconds to choose',
-                footer: 'You have 10 seconds to choose',
+                footer: translations[localStorage.getItem('language')]['timeToChoose'],
                 html: choiceMenu(),
-                width:1200,
+                width:'100%',
+                position: 'center',
+                grow: 'fullscreen',
                 timer: 10000,
                 timerProgressBar: true,
                 showConfirmButton: false,
