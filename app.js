@@ -420,6 +420,7 @@ window.onload = async function () {
     const player = document.getElementById('player');
     player.play();
     })
+    btn.click();
     const game = new Game();
     game.start();
 }
