@@ -150,7 +150,10 @@ class Game {
     showMenu() {
         return new Promise((resolve, reject) => {
             Swal.fire({
-                title: `<p id="titleMainMenu"></p>`,
+                title: `
+                <div>
+                <p id="titleMainMenu"></p>
+                </div>`,
                 html: mainMenuTemplate(this.players[0], this.players[1], translations[this.language].score),
                 padding: '3em',
                 showConfirmButton: true,
