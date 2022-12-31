@@ -243,7 +243,7 @@ class Game {
         if(winner) {
             winner.score = winner.score + 1;
             if(!winner.computer) {
-                const player =  document.getElementById('player');
+                const player =  document.createElement('audio');
                 player.setAttribute('src', 'assets/lost.mp3');
                 player.play();
             }
@@ -415,6 +415,8 @@ class Player {
 
 
 window.onload = async function () {
+    const player = document.getElementById('player');
+    player.play();
     const game = new Game();
     game.start();
 }
