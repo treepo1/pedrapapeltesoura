@@ -415,8 +415,11 @@ class Player {
 
 
 window.onload = async function () {
+    const btn = document.getElementById('playMusic');
+    btn.addEventListener('click', function () {
     const player = document.getElementById('player');
     player.play();
+    })
     const game = new Game();
     game.start();
 }
