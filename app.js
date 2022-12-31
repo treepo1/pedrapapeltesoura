@@ -25,7 +25,8 @@ const translations = {
         portuguese: "Portuguese",
         chooseLanguage: "Choose a language",
         chooseYourWeapon: "Choose your weapon",
-        timeToChoose: "You have 10 seconds to choose"
+        timeToChoose: "You have 10 seconds to choose",
+        backToMenu: "Back to menu"
     },
     br: {
         computer: "Computador",
@@ -45,11 +46,45 @@ const translations = {
         portuguese: "Português",
         chooseLanguage: "Escolha um idioma",
         chooseYourWeapon: "Escolha sua arma",
-        timeToChoose: "Você tem 10 segundos para escolher"
+        timeToChoose: "Você tem 10 segundos para escolher",
+        backToMenu: "Voltar ao menu"
     }
 }
 
+ const translateName = (name, language) => {
 
+    console.log(name,language)
+
+    if(!Object.getOwnPropertyNames(translations).includes(language)) {
+        throw new Error("Invalid language");
+    }
+
+    if(name === "You" || name === "Você") {
+        console.log(translations[language].you)
+        return translations[language].you;
+    }
+
+    if(name === "Computer" || name === "Computador") {
+        return translations[language].computer;
+    }
+
+    return name
+
+
+}
+
+
+
+function typeEffect(text, element) {
+    let index = 0;
+    let interval = setInterval(function() {
+      element.innerHTML += text[index];
+      index++;
+      if (index >= text.length) {
+        clearInterval(interval);
+      }
+    }, 100);
+  }
 
 
 
@@ -113,7 +148,7 @@ class Game {
     showMenu() {
         return new Promise((resolve, reject) => {
             Swal.fire({
-                title: translations[this.language].title,
+                title: `<p id="titleMainMenu"></p>`,
                 html: mainMenuTemplate(this.players[0], this.players[1], translations[this.language].score),
                 padding: '3em',
                 showConfirmButton: true,
@@ -159,6 +194,8 @@ class Game {
                 } 
                 
             })
+
+            typeEffect(translations[this.language].title,document.getElementById('titleMainMenu'));
         })
     }
 
@@ -191,6 +228,8 @@ class Game {
                 title: `${winner.name} ${translations[this.language].win}`,
                 html: resultsMenu(winner, looser),
                 width: 800,
+                showCancelButton: true,
+                cancelButtonText:translations[this.language].backToMenu,
                 padding: '3em',
                 confirmButtonText: translations[this.language].playAgain,
             }).then((result) => {
@@ -205,6 +244,8 @@ class Game {
                 title: translations[this.language].draw,
                 html: resultsMenu(this.players[0], this.players[1]),
                 width: 800,
+                showCancelButton: true,
+                cancelButtonText:translations[this.language].backToMenu,
                 padding: '3em',
                 confirmButtonText: translations[this.language].playAgain,
             }).then((result) => {
@@ -249,7 +290,7 @@ class Player {
     }
 
     get name() {
-        return this._name;
+        return translateName(this._name, localStorage.getItem('language'));
     }
 
     set name(value) {
@@ -285,7 +326,6 @@ class Player {
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 allowEnterKey: false,
-                background:"transparent",
                 didOpen: () => {
 
                    const choices =  document.getElementById("choiceMenu").children
