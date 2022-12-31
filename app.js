@@ -407,12 +407,8 @@ class Player {
 
 
 
-document.getElementById("btnStart").addEventListener("click",function () {
-    const game = new Game();
-    game.start();
-} )
-
 window.onload = async function () {
+    document.getElementById('player').play()
     const game = new Game();
     game.start();
 }
