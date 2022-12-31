@@ -242,6 +242,11 @@ class Game {
         const looser = this.players.find(player => player !== winner);
         if(winner) {
             winner.score = winner.score + 1;
+            if(!winner.computer) {
+                const player =  document.getElementById('player');
+                player.setAttribute('src', 'assets/lost.mp3');
+                player.play();
+            }
             Swal.fire({
                 title: `${winner.name} ${translations[this.language].win}`,
                 html: resultsMenu(winner, looser),
@@ -257,6 +262,8 @@ class Game {
                     this.showMenu();
                 }
             })
+
+
         } else {
             Swal.fire({
                 title: translations[this.language].draw,
@@ -408,7 +415,6 @@ class Player {
 
 
 window.onload = async function () {
-    document.getElementById('player').play()
     const game = new Game();
     game.start();
 }
