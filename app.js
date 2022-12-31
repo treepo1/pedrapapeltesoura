@@ -8,6 +8,7 @@ import languageMenu from "./menus/language.js";
 
 const translations = { 
     eng: {
+        loading: "And the result is...",
         computer: "Computer",
         play: "Play",
         title: "Rock Paper Scissors",
@@ -29,6 +30,7 @@ const translations = {
         backToMenu: "Back to menu"
     },
     br: {
+        loading: "E o resultado é...",
         computer: "Computador",
         play: "Jogar",
         title: "Pedra, Papel, Tesoura",
@@ -183,6 +185,9 @@ class Game {
                     for (const btn of btns) {
                         btn.addEventListener('click', (e) => {
                             this.language = e.target.id;
+                            const audioPlayer = document.createElement('audio');
+                            audioPlayer.src = 'assets/click.mp3';
+                            audioPlayer.play();
                             this.play();
                             resolve();
                         })
@@ -240,49 +245,68 @@ class Game {
         }
         const winner = this.getWinner();
         const looser = this.players.find(player => player !== winner);
-        if(winner) {
-            winner.score = winner.score + 1;
-            if(!winner.computer) {
-                const player =  document.createElement('audio');
-                player.setAttribute('src', 'assets/lost.mp3');
-                player.play();
+
+            Swal.fire({
+                title: translations[this.language].loading,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                showCancelButton: false,
+                background:'white',
+                width:'100%',
+                height:'100%',
+            })
+            const audioPlayer = document.createElement('audio');
+            audioPlayer.src = 'assets/loadingResults.mp3';
+            audioPlayer.play();
+        setTimeout(() => {
+            if(winner) {
+                winner.score = winner.score + 1;
+                if(!winner.computer) {
+                    const player =  document.createElement('audio');
+                    player.setAttribute('src', 'assets/lost.mp3');
+                    player.play();
+                }
+                Swal.fire({
+                    title: `${winner.name} ${translations[this.language].win}`,
+                    html: resultsMenu(winner, looser),
+                    width: 800,
+                    showCancelButton: true,
+                    cancelButtonText:translations[this.language].backToMenu,
+                    padding: '3em',
+                    confirmButtonText: translations[this.language].playAgain,
+                }).then((result) => {
+                    if(result.isConfirmed)
+                    this.play();
+                    else {
+                        this.showMenu();
+                    }
+                })
+    
+    
+            } else {
+                Swal.fire({
+                    title: translations[this.language].draw,
+                    html: resultsMenu(this.players[0], this.players[1]),
+                    width: 800,
+                    showCancelButton: true,
+                    cancelButtonText:translations[this.language].backToMenu,
+                    padding: '3em',
+                    confirmButtonText: translations[this.language].playAgain,
+                }).then((result) => {
+                    if(result.isConfirmed)
+                    this.play();
+                    else {
+                        this.showMenu();
+                    }
+                })
             }
-            Swal.fire({
-                title: `${winner.name} ${translations[this.language].win}`,
-                html: resultsMenu(winner, looser),
-                width: 800,
-                showCancelButton: true,
-                cancelButtonText:translations[this.language].backToMenu,
-                padding: '3em',
-                confirmButtonText: translations[this.language].playAgain,
-            }).then((result) => {
-                if(result.isConfirmed)
-                this.play();
-                else {
-                    this.showMenu();
-                }
-            })
+            window.localStorage.setItem("players", JSON.stringify(this.players));
+            this.players.forEach(player => player.choice = null);
+        }, 4000)
 
 
-        } else {
-            Swal.fire({
-                title: translations[this.language].draw,
-                html: resultsMenu(this.players[0], this.players[1]),
-                width: 800,
-                showCancelButton: true,
-                cancelButtonText:translations[this.language].backToMenu,
-                padding: '3em',
-                confirmButtonText: translations[this.language].playAgain,
-            }).then((result) => {
-                if(result.isConfirmed)
-                this.play();
-                else {
-                    this.showMenu();
-                }
-            })
-        }
-        window.localStorage.setItem("players", JSON.stringify(this.players));
-        this.players.forEach(player => player.choice = null);
         
 
 
@@ -370,6 +394,9 @@ class Player {
                     choiceEl.addEventListener("click", function () {
                         console.log(this.id)
                         this.setChoice(choice.id);
+                        const player = document.createElement('audio');
+                        player.setAttribute('src', 'assets/click.mp3');
+                        player.play();
                         Swal.close();
                         resolve();
                     }.bind(this));
@@ -418,9 +445,14 @@ window.onload = async function () {
     const btn = document.getElementById('playMusic');
     btn.addEventListener('click', function () {
     const player = document.getElementById('player');
-    player.play();
+    // player.play();
     })
     btn.click();
+    const language = localStorage.getItem('language');
+    if(!language) {
+        localStorage.setItem('language', 'en');
+    }
+    document.title = translations[localStorage.getItem('language')].title;
     const game = new Game();
     game.start();
 }
